@@ -12,8 +12,8 @@ union SDL_Event;
 #endif
 
 #include "Hooks/MinHook.h"
-#include "Hooks/VmtHook.h"
-#include "Hooks/VmtSwap.h"
+//#include "Hooks/VmtHook.h"
+//#include "Hooks/VmtSwap.h"
 
 #include "SDK/Platform.h"
 
@@ -22,9 +22,9 @@ struct SoundInfo;
 #ifdef _WIN32
 // Easily switch hooking method for all hooks, choose between MinHook/VmtHook/VmtSwap
 using HookType = MinHook;
-#else
-using HookType = VmtSwap;
-#endif
+//#else
+//using HookType = VmtSwap;
+//#endif
 
 class Hooks {
 public:

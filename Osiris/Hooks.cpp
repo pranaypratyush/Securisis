@@ -64,11 +64,14 @@
 #include "SDK/StudioRender.h"
 #include "SDK/Surface.h"
 #include "SDK/UserCmd.h"
+#include "Security/VMProtectSDK.h"
 
 #ifdef _WIN32
 
 static LRESULT __stdcall wndProc(HWND window, UINT msg, WPARAM wParam, LPARAM lParam) noexcept
 {
+    VMProtectBeginMutation("wndProc");
+
     [[maybe_unused]] static const auto once = [](HWND window) noexcept {
         netvars = std::make_unique<Netvars>();
         eventListener = std::make_unique<EventListener>();
@@ -87,12 +90,13 @@ static LRESULT __stdcall wndProc(HWND window, UINT msg, WPARAM wParam, LPARAM lP
     ImGui_ImplWin32_WndProcHandler(window, msg, wParam, lParam);
 
     interfaces->inputSystem->enableInput(!gui->isOpen());
-
+    VMProtectEnd();
     return CallWindowProcW(hooks->originalWndProc, window, msg, wParam, lParam);
 }
 
 static HRESULT __stdcall present(IDirect3DDevice9* device, const RECT* src, const RECT* dest, HWND windowOverride, const RGNDATA* dirtyRegion) noexcept
 {
+    VMProtectBeginMutation("present");
     [[maybe_unused]] static bool imguiInit{ ImGui_ImplDX9_Init(device) };
 
     if (config->loadScheduledFonts())
@@ -136,7 +140,8 @@ static HRESULT __stdcall present(IDirect3DDevice9* device, const RECT* src, cons
     
     GameData::clearUnusedAvatars();
     InventoryChanger::clearUnusedItemIconTextures();
-
+    
+    VMProtectEnd();
     return hooks->originalPresent(device, src, dest, windowOverride, dirtyRegion);
 }
 
@@ -152,8 +157,9 @@ static HRESULT __stdcall reset(IDirect3DDevice9* device, D3DPRESENT_PARAMETERS* 
 
 static bool __STDCALL createMove(LINUX_ARGS(void* thisptr,) float inputSampleTime, UserCmd* cmd) noexcept
 {
+    VMProtectBeginMutation("createMove");
     auto result = hooks->clientMode.callOriginal<bool, IS_WIN32() ? 24 : 25>(inputSampleTime, cmd);
-
+    
     if (!cmd->commandNumber)
         return result;
 
@@ -218,12 +224,13 @@ static bool __STDCALL createMove(LINUX_ARGS(void* thisptr,) float inputSampleTim
     cmd->sidemove = std::clamp(cmd->sidemove, -450.0f, 450.0f);
 
     previousViewAngles = cmd->viewangles;
-
+    VMProtectEnd();
     return false;
 }
 
 static void __STDCALL doPostScreenEffects(LINUX_ARGS(void* thisptr,) void* param) noexcept
 {
+    VMProtectBeginMutation("doPostScreenEffects");
     if (interfaces->engine->isInGame()) {
         Visuals::thirdperson();
         Misc::inverseRagdollGravity();
@@ -233,21 +240,25 @@ static void __STDCALL doPostScreenEffects(LINUX_ARGS(void* thisptr,) void* param
         Glow::render();
     }
     hooks->clientMode.callOriginal<void, IS_WIN32() ? 44 : 45>(param);
+    VMProtectEnd();
 }
 
 static float __STDCALL getViewModelFov(LINUX_ARGS(void* thisptr)) noexcept
 {
+    VMProtectBeginMutation("doPostScreenEffects");
     float additionalFov = static_cast<float>(config->visuals.viewmodelFov);
     if (localPlayer) {
         if (const auto activeWeapon = localPlayer->getActiveWeapon(); activeWeapon && activeWeapon->getClientClass()->classId == ClassId::Tablet)
             additionalFov = 0.0f;
     }
 
+    VMProtectEnd();
     return hooks->clientMode.callOriginal<float, IS_WIN32() ? 35 : 36>() + additionalFov;
 }
 
 static void __STDCALL drawModelExecute(LINUX_ARGS(void* thisptr,) void* ctx, void* state, const ModelRenderInfo& info, matrix3x4* customBoneToWorld) noexcept
 {
+    VMProtectBeginMutation("drawModelExecute");
     if (interfaces->studioRender->isForcedMaterialOverride())
         return hooks->modelRender.callOriginal<void, 21>(ctx, state, std::cref(info), customBoneToWorld);
 
@@ -259,18 +270,24 @@ static void __STDCALL drawModelExecute(LINUX_ARGS(void* thisptr,) void* ctx, voi
         hooks->modelRender.callOriginal<void, 21>(ctx, state, std::cref(info), customBoneToWorld);
 
     interfaces->studioRender->forcedMaterialOverride(nullptr);
+    VMProtectEnd();
 }
 
 static bool __FASTCALL svCheatsGetBool(void* _this) noexcept
 {
+    VMProtectBeginMutation("svCheatsGetBool");
     if (uintptr_t(RETURN_ADDRESS()) == memory->cameraThink && config->visuals.thirdperson)
         return true;
 
     return hooks->svCheats.getOriginal<bool, IS_WIN32() ? 13 : 16>()(_this);
+    VMProtectEnd();
+
 }
 
 static void __STDCALL frameStageNotify(LINUX_ARGS(void* thisptr,) FrameStage stage) noexcept
 {
+    VMProtectBeginMutation("frameStageNotify");
+
     [[maybe_unused]] static auto backtrackInit = (Backtrack::init(), false);
 
     if (interfaces->engine->isConnected() && !interfaces->engine->isInGame())
@@ -303,14 +320,17 @@ static void __STDCALL frameStageNotify(LINUX_ARGS(void* thisptr,) FrameStage sta
     InventoryChanger::run(stage);
 
     hooks->client.callOriginal<void, 37>(stage);
+    VMProtectEnd();
 }
 
 static int __STDCALL emitSound(LINUX_ARGS(void* thisptr,) void* filter, int entityIndex, int channel, const char* soundEntry, unsigned int soundEntryHash, const char* sample, float volume, int seed, int soundLevel, int flags, int pitch, const Vector& origin, const Vector& direction, void* utlVecOrigins, bool updatePositions, float soundtime, int speakerentity, void* soundParams) noexcept
 {
+    VMProtectBeginMutation("emitSound");
     Sound::modulateSound(soundEntry, entityIndex, volume);
     Misc::autoAccept(soundEntry);
 
     volume = std::clamp(volume, 0.0f, 1.0f);
+    VMProtectEnd();
     return hooks->sound.callOriginal<int, IS_WIN32() ? 5 : 6>(filter, entityIndex, channel, soundEntry, soundEntryHash, sample, volume, seed, soundLevel, flags, pitch, std::cref(origin), std::cref(direction), utlVecOrigins, updatePositions, soundtime, speakerentity, soundParams);
 }
 
@@ -583,6 +603,8 @@ static void swapWindow(SDL_Window* window) noexcept
 
 void Hooks::install() noexcept
 {
+    VMProtectBeginMutation("Hooks::install()");
+
 #ifdef _WIN32
     originalPresent = **reinterpret_cast<decltype(originalPresent)**>(memory->present);
     **reinterpret_cast<decltype(present)***>(memory->present) = present;
@@ -661,6 +683,8 @@ void Hooks::install() noexcept
     if constexpr (std::is_same_v<HookType, MinHook>)
         MH_EnableHook(MH_ALL_HOOKS);
 #endif
+    VMProtectEnd();
+
 }
 
 #ifdef _WIN32
@@ -670,6 +694,8 @@ extern "C" BOOL WINAPI _CRT_INIT(HMODULE moduleHandle, DWORD reason, LPVOID rese
 static DWORD WINAPI unload(HMODULE moduleHandle) noexcept
 {
     Sleep(100);
+
+    VMProtectBeginMutation("unload");
 
     interfaces->inputSystem->enableInput(true);
     eventListener->remove();
@@ -681,12 +707,16 @@ static DWORD WINAPI unload(HMODULE moduleHandle) noexcept
     _CRT_INIT(moduleHandle, DLL_PROCESS_DETACH, nullptr);
 
     FreeLibraryAndExitThread(moduleHandle, 0);
+    VMProtectEnd();
+
 }
 
 #endif
 
 void Hooks::uninstall() noexcept
 {
+    VMProtectBeginMutation("uninstall");
+
     Misc::updateEventListeners(true);
     Visuals::updateEventListeners(true);
 
@@ -731,6 +761,7 @@ void Hooks::uninstall() noexcept
     *reinterpret_cast<decltype(pollEvent)*>(memory->pollEvent) = pollEvent;
     *reinterpret_cast<decltype(swapWindow)*>(memory->swapWindow) = swapWindow;
 #endif
+    VMProtectEnd();
 }
 
 #ifndef _WIN32

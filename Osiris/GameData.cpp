@@ -33,7 +33,7 @@
 #include "SDK/UtlVector.h"
 #include "SDK/WeaponId.h"
 #include "SDK/WeaponData.h"
-
+#include "Security/VMProtectSDK.h"
 static Matrix4x4 viewMatrix;
 static LocalPlayerData localPlayerData;
 static std::vector<PlayerData> playerData;
@@ -54,14 +54,19 @@ static auto playerByHandleWritable(int handle) noexcept
 
 static void updateNetLatency() noexcept
 {
+    VMProtectBeginMutation("updateNetLatency");
+
     if (const auto networkChannel = interfaces->engine->getNetworkChannel())
         netOutgoingLatency = (std::max)(static_cast<int>(networkChannel->getLatency(0) * 1000.0f), 0);
     else
         netOutgoingLatency = 0;
+    VMProtectEnd();
 }
 
 void GameData::update() noexcept
 {
+    VMProtectBeginMutation("GameData::update");
+
     static int lastFrame;
     if (lastFrame == memory->globalVars->framecount)
         return;
@@ -176,6 +181,8 @@ void GameData::update() noexcept
         && (projectile.trajectory.size() < 1 || projectile.trajectory[projectile.trajectory.size() - 1].first + 60.0f < memory->globalVars->realtime); });
 
     std::erase_if(playerData, [](const auto& player) { return interfaces->entityList->getEntityFromHandle(player.handle) == nullptr; });
+    VMProtectEnd();
+
 }
 
 void GameData::clearProjectileList() noexcept
@@ -270,6 +277,8 @@ const std::vector<InfernoData>& GameData::infernos() noexcept
 
 void LocalPlayerData::update() noexcept
 {
+    VMProtectBeginMutation("LocalPlayerData::update()");
+
     if (!localPlayer) {
         exists = false;
         return;
@@ -295,10 +304,13 @@ void LocalPlayerData::update() noexcept
         origin = obs->getAbsOrigin();
     else
         origin = localPlayer->getAbsOrigin();
+    VMProtectEnd();
 }
 
 BaseData::BaseData(Entity* entity) noexcept
 {
+    VMProtectBeginMutation("BaseData");
+
     distanceToLocal = entity->getAbsOrigin().distTo(localPlayerData.origin);
  
     if (entity->isPlayer()) {
@@ -311,10 +323,13 @@ BaseData::BaseData(Entity* entity) noexcept
     }
 
     coordinateFrame = entity->toWorldTransform();
+    VMProtectEnd();
 }
 
 EntityData::EntityData(Entity* entity) noexcept : BaseData{ entity }
 {
+    VMProtectBeginMutation("EntityData");
+
     name = [](Entity* entity) {
         switch (entity->getClientClass()->classId) {
         case ClassId::EconEntity: return "Defuse Kit";
@@ -330,6 +345,7 @@ EntityData::EntityData(Entity* entity) noexcept : BaseData{ entity }
         default: assert(false); return "unknown";
         }
     }(entity);
+    VMProtectEnd();
 }
 
 ProjectileData::ProjectileData(Entity* projectile) noexcept : BaseData { projectile }
@@ -372,6 +388,7 @@ void ProjectileData::update(Entity* projectile) noexcept
 
 PlayerData::PlayerData(Entity* entity) noexcept : BaseData{ entity }, handle{ entity->handle() }
 {
+    VMProtectBeginMutation("PlayerData");
     if (const auto steamID = entity->getSteamId()) {
         const auto ctx = interfaces->engine->getSteamAPIContext();
         const auto avatar = ctx->steamFriends->getSmallFriendAvatar(steamID);
@@ -384,10 +401,12 @@ PlayerData::PlayerData(Entity* entity) noexcept : BaseData{ entity }, handle{ en
     }
 
     update(entity);
+    VMProtectEnd();
 }
 
 void PlayerData::update(Entity* entity) noexcept
 {
+    VMProtectBeginMutation("PlayerData::update");
     name = entity->getPlayerName();
 
     dormant = entity->isDormant();
@@ -462,6 +481,7 @@ void PlayerData::update(Entity* entity) noexcept
         headMins -= headBox->capsuleRadius;
         headMaxs += headBox->capsuleRadius;
     }
+    VMProtectEnd();
 }
 
 struct PNGTexture {

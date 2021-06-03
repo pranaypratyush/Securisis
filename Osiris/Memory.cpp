@@ -20,7 +20,7 @@
 #include "Interfaces.h"
 #include "Memory.h"
 #include "SDK/LocalPlayer.h"
-
+#include "Security/VMProtectSDK.h"
 template <typename T>
 static constexpr auto relativeToAbsolute(uintptr_t address) noexcept
 {
@@ -85,6 +85,8 @@ static std::pair<void*, std::size_t> getModuleInformation(const char* name) noex
 
 [[nodiscard]] static auto generateBadCharTable(std::string_view pattern) noexcept
 {
+    VMProtectBeginMutation("generateBadCharTable");
+
     assert(!pattern.empty());
 
     std::array<std::size_t, (std::numeric_limits<std::uint8_t>::max)() + 1> table;
@@ -98,12 +100,14 @@ static std::pair<void*, std::size_t> getModuleInformation(const char* name) noex
 
     for (auto i = lastWildcard; i < pattern.length() - 1; ++i)
         table[static_cast<std::uint8_t>(pattern[i])] = pattern.length() - 1 - i;
-
+    VMProtectEnd();
     return table;
 }
 
 static std::uintptr_t findPattern(const char* moduleName, std::string_view pattern, bool reportNotFound = true) noexcept
 {
+    VMProtectBeginMutation("findPattern");
+
     static auto id = 0;
     ++id;
 
@@ -127,15 +131,23 @@ static std::uintptr_t findPattern(const char* moduleName, std::string_view patte
             start += badCharTable[static_cast<std::uint8_t>(start[lastIdx])];
         }
     }
+    VMProtectEnd();
 #ifdef _WIN32
     if (reportNotFound)
-        MessageBoxA(nullptr, ("Failed to find pattern #" + std::to_string(id) + '!').c_str(), "Osiris", MB_OK | MB_ICONWARNING);
+        VMProtectBeginMutation("findPattern.if");
+
+        MessageBoxA(nullptr, ("Failed to find pattern #" + std::to_string(id) + '!').c_str(), "noope", MB_OK | MB_ICONWARNING);
+
+        VMProtectEnd();
+
 #endif
     return 0;
 }
 
 Memory::Memory() noexcept
 {
+    VMProtectBeginMutation("Memory::Memory");
+
 #ifdef _WIN32
     present = findPattern("gameoverlayrenderer", "\xFF\x15????\x8B\xF8\x85\xDB", false) + 2;
     reset = findPattern("gameoverlayrenderer", "\xC7\x45?????\xFF\x15????\x8B\xF8", false) + 9;
@@ -221,6 +233,7 @@ Memory::Memory() noexcept
     createBaseTypeCache = relativeToAbsolute<decltype(createBaseTypeCache)>(findPattern(CLIENT_DLL, "\xE8????\x8D\x4D\x0F") + 1);
 
     localPlayer.init(*reinterpret_cast<Entity***>(findPattern(CLIENT_DLL, "\xA1????\x89\x45\xBC\x85\xC0") + 1));
+
 #else
     const auto tier0 = dlopen(TIER0_DLL, RTLD_NOLOAD | RTLD_NOW);
     debugMsg = decltype(debugMsg)(dlsym(tier0, "Msg"));
@@ -305,4 +318,6 @@ Memory::Memory() noexcept
 
     localPlayer.init(relativeToAbsolute<Entity**>(findPattern(CLIENT_DLL, "\x83\xFF\xFF\x48\x8B\x05") + 6));
 #endif
+    VMProtectEnd();
+
 }

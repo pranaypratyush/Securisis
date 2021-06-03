@@ -1,6 +1,6 @@
 #include "MinHook.h"
 #include "../MinHook/MinHook.h"
-
+#include "../Security/VMProtectSDK.h"
 static auto calculateVmtLength(uintptr_t* vmt) noexcept
 {
     std::size_t length = 0;
@@ -12,13 +12,17 @@ static auto calculateVmtLength(uintptr_t* vmt) noexcept
 
 void MinHook::init(void* base) noexcept
 {
+    VMProtectBeginMutation("MinHook::init");
     this->base = base;
     originals = std::make_unique<uintptr_t[]>(calculateVmtLength(*reinterpret_cast<uintptr_t**>(base)));
+    VMProtectEnd();
 }
 
 void MinHook::hookAt(std::size_t index, void* fun) noexcept
 {
+    VMProtectBeginMutation("MinHook::hookAt");
     void* orig;
     MH_CreateHook((*reinterpret_cast<void***>(base))[index], fun, &orig);
     originals[index] = uintptr_t(orig);
+    VMProtectEnd();
 }

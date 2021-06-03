@@ -12,7 +12,7 @@
 
 #include "InputUtil.h"
 #include "SDK/Platform.h"
-
+#include "Security/VMProtectSDK.h"
 struct Key {
     template <std::size_t N>
     constexpr Key(const char(&name)[N], int code) : name{ name }, code{ code } {  }

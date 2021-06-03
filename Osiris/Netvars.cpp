@@ -16,20 +16,25 @@
 #include "SDK/LocalPlayer.h"
 #include "SDK/Platform.h"
 #include "SDK/Recv.h"
-
+#include "Security/VMProtectSDK.h"
 static std::unordered_map<std::uint32_t, std::pair<recvProxy, recvProxy*>> proxies;
 
 static void __CDECL spottedHook(recvProxyData& data, void* arg2, void* arg3) noexcept
 {
+    VMProtectBeginMutation("spottedHook");
+
     if (config->misc.radarHack)
         data.value._int = 1;
 
     constexpr auto hash{ fnv::hash("CBaseEntity->m_bSpotted") };
     proxies[hash].first(data, arg2, arg3);
+    VMProtectEnd();
 }
 
 static void __CDECL viewModelSequence(recvProxyData& data, void* outStruct, void* arg3) noexcept
 {
+    VMProtectBeginMutation("viewModelSequence");
+
     const auto viewModel = reinterpret_cast<Entity*>(outStruct);
 
     if (localPlayer && interfaces->entityList->getEntityFromHandle(viewModel->owner()) == localPlayer.get()) {
@@ -42,28 +47,37 @@ static void __CDECL viewModelSequence(recvProxyData& data, void* outStruct, void
     }
     constexpr auto hash{ fnv::hash("CBaseViewModel->m_nSequence") };
     proxies[hash].first(data, outStruct, arg3);
+    VMProtectEnd();
 }
 
 Netvars::Netvars() noexcept
 {
+    VMProtectBeginMutation("Netvars");
+
     for (auto clientClass = interfaces->client->getAllClasses(); clientClass; clientClass = clientClass->next)
         walkTable(clientClass->networkName, clientClass->recvTable);
 
     std::ranges::sort(offsets, {}, &std::pair<uint32_t, uint16_t>::first);
     offsets.shrink_to_fit();
+    VMProtectEnd();
+
 }
 
 void Netvars::restore() noexcept
 {
+    VMProtectBeginMutation("Netvars::restore");
+
     for (const auto& [hash, proxyPair] : proxies)
         *proxyPair.second = proxyPair.first;
 
     proxies.clear();
     offsets.clear();
+    VMProtectEnd();
 }
 
 void Netvars::walkTable(const char* networkName, RecvTable* recvTable, const std::size_t offset) noexcept
 {
+    VMProtectBeginMutation("Netvars::walkTable");
     for (int i = 0; i < recvTable->propCount; ++i) {
         auto& prop = recvTable->props[i];
 
@@ -104,4 +118,5 @@ void Netvars::walkTable(const char* networkName, RecvTable* recvTable, const std
         if (auto hook{ getHook(hash) })
             hookProperty(hash, prop.proxy, hook);
     }
+    VMProtectEnd();
 }
