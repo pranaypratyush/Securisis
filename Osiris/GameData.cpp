@@ -54,13 +54,10 @@ static auto playerByHandleWritable(int handle) noexcept
 
 static void updateNetLatency() noexcept
 {
-    VMProtectBeginMutation("updateNetLatency");
-
     if (const auto networkChannel = interfaces->engine->getNetworkChannel())
         netOutgoingLatency = (std::max)(static_cast<int>(networkChannel->getLatency(0) * 1000.0f), 0);
     else
         netOutgoingLatency = 0;
-    VMProtectEnd();
 }
 
 void GameData::update() noexcept
@@ -300,11 +297,11 @@ void LocalPlayerData::update() noexcept
     aimPunch = localPlayer->getEyePosition() + Vector::fromAngle(interfaces->engine->getViewAngles() + localPlayer->getAimPunch()) * 1000.0f;
 
     const auto obsMode = localPlayer->getObserverMode();
+    VMProtectEnd();
     if (const auto obs = localPlayer->getObserverTarget(); obs && obsMode != ObsMode::Roaming && obsMode != ObsMode::Deathcam)
         origin = obs->getAbsOrigin();
     else
         origin = localPlayer->getAbsOrigin();
-    VMProtectEnd();
 }
 
 BaseData::BaseData(Entity* entity) noexcept
@@ -648,13 +645,13 @@ LootCrateData::LootCrateData(Entity* entity) noexcept : BaseData{ entity }
         return;
 
     name = [](const char* modelName) -> const char* {
-        switch (fnv::hashRuntime(modelName)) {
-        case fnv::hash("models/props_survival/cases/case_pistol.mdl"): return "Pistol Case";
-        case fnv::hash("models/props_survival/cases/case_light_weapon.mdl"): return "Light Case";
-        case fnv::hash("models/props_survival/cases/case_heavy_weapon.mdl"): return "Heavy Case";
-        case fnv::hash("models/props_survival/cases/case_explosive.mdl"): return "Explosive Case";
-        case fnv::hash("models/props_survival/cases/case_tools.mdl"): return "Tools Case";
-        case fnv::hash("models/props_survival/cash/dufflebag.mdl"): return "Cash Dufflebag";
+        switch (fnv::hash_runtime(modelName)) {
+        case FNV("models/props_survival/cases/case_pistol.mdl"): return "Pistol Case";
+        case FNV("models/props_survival/cases/case_light_weapon.mdl"): return "Light Case";
+        case FNV("models/props_survival/cases/case_heavy_weapon.mdl"): return "Heavy Case";
+        case FNV("models/props_survival/cases/case_explosive.mdl"): return "Explosive Case";
+        case FNV("models/props_survival/cases/case_tools.mdl"): return "Tools Case";
+        case FNV("models/props_survival/cash/dufflebag.mdl"): return "Cash Dufflebag";
         default: return nullptr;
         }
     }(model->name);

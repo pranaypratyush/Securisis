@@ -24,7 +24,7 @@ struct SoundInfo;
 using HookType = MinHook;
 //#else
 //using HookType = VmtSwap;
-//#endif
+#endif
 
 class Hooks {
 public:

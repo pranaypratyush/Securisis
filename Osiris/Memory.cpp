@@ -21,6 +21,7 @@
 #include "Memory.h"
 #include "SDK/LocalPlayer.h"
 #include "Security/VMProtectSDK.h"
+#include "fnv.h"
 template <typename T>
 static constexpr auto relativeToAbsolute(uintptr_t address) noexcept
 {
@@ -85,8 +86,6 @@ static std::pair<void*, std::size_t> getModuleInformation(const char* name) noex
 
 [[nodiscard]] static auto generateBadCharTable(std::string_view pattern) noexcept
 {
-    VMProtectBeginMutation("generateBadCharTable");
-
     assert(!pattern.empty());
 
     std::array<std::size_t, (std::numeric_limits<std::uint8_t>::max)() + 1> table;
@@ -100,7 +99,6 @@ static std::pair<void*, std::size_t> getModuleInformation(const char* name) noex
 
     for (auto i = lastWildcard; i < pattern.length() - 1; ++i)
         table[static_cast<std::uint8_t>(pattern[i])] = pattern.length() - 1 - i;
-    VMProtectEnd();
     return table;
 }
 

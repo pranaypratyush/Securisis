@@ -7,7 +7,7 @@
 #include "../SDK/LocalPlayer.h"
 #include "../SDK/UserCmd.h"
 #include "../SDK/Vector.h"
-
+#include "../Security/VMProtectSDK.h"
 #if OSIRIS_ANTIAIM()
 
 struct AntiAimConfig {

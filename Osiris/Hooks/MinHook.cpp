@@ -20,9 +20,7 @@ void MinHook::init(void* base) noexcept
 
 void MinHook::hookAt(std::size_t index, void* fun) noexcept
 {
-    VMProtectBeginMutation("MinHook::hookAt");
     void* orig;
     MH_CreateHook((*reinterpret_cast<void***>(base))[index], fun, &orig);
     originals[index] = uintptr_t(orig);
-    VMProtectEnd();
 }

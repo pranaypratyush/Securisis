@@ -763,8 +763,8 @@ void Misc::purchaseList(GameEvent* event) noexcept
     static auto freezeEnd = 0.0f;
 
     if (event) {
-        switch (fnv::hashRuntime(event->getName())) {
-        case fnv::hash("item_purchase"): {
+        switch (fnv::hash_runtime(event->getName())) {
+        case FNV("item_purchase"): {
             const auto player = interfaces->entityList->getEntity(interfaces->engine->getPlayerForUserID(event->getInt("userid")));
 
             if (player && localPlayer && memory->isOtherEnemy(player, localPlayer.get())) {
@@ -781,13 +781,13 @@ void Misc::purchaseList(GameEvent* event) noexcept
             }
             break;
         }
-        case fnv::hash("round_start"):
+        case FNV("round_start"):
             freezeEnd = 0.0f;
             playerPurchases.clear();
             purchaseTotal.clear();
             totalCost = 0;
             break;
-        case fnv::hash("round_freeze_end"):
+        case FNV("round_freeze_end"):
             freezeEnd = memory->globalVars->realtime;
             break;
         }

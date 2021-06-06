@@ -19,7 +19,7 @@
 #include "../SDK/GlobalVars.h"
 #include "../SDK/PhysicsSurfaceProps.h"
 #include "../SDK/WeaponData.h"
-
+#include "../Security/VMProtectSDK.h"
 Vector Aimbot::calculateRelativeAngle(const Vector& source, const Vector& destination, const Vector& viewAngles) noexcept
 {
     return ((destination - source).toAngle() - viewAngles).normalize();
@@ -27,6 +27,7 @@ Vector Aimbot::calculateRelativeAngle(const Vector& source, const Vector& destin
 
 static bool traceToExit(const Trace& enterTrace, const Vector& start, const Vector& direction, Vector& end, Trace& exitTrace)
 {
+    VMProtectBeginMutation("TraceToExit");
     bool result = false;
 #ifdef _WIN32
     const auto traceToExitFn = memory->traceToExit;
@@ -47,11 +48,14 @@ static bool traceToExit(const Trace& enterTrace, const Vector& start, const Vect
         mov result, al
     }
 #endif
+    VMProtectEnd();
     return result;
 }
 
 static float handleBulletPenetration(SurfaceData* enterSurfaceData, const Trace& enterTrace, const Vector& direction, Vector& result, float penetration, float damage) noexcept
 {
+    VMProtectBeginMutation("handleBulletPenetration");
+
     Vector end;
     Trace exitTrace;
 
@@ -80,11 +84,13 @@ static float handleBulletPenetration(SurfaceData* enterSurfaceData, const Trace&
     damage -= 11.25f / penetration / penetrationModifier + damage * damageModifier + (exitTrace.endpos - enterTrace.endpos).squareLength() / 24.0f / penetrationModifier;
 
     result = exitTrace.endpos;
+    VMProtectEnd();
     return damage;
 }
 
 static bool canScan(Entity* entity, const Vector& destination, const WeaponInfo* weaponData, int minDamage, bool allowFriendlyFire) noexcept
 {
+    VMProtectBeginMutation("canScan");
     if (!localPlayer)
         return false;
 
@@ -122,6 +128,7 @@ static bool canScan(Entity* entity, const Vector& destination, const WeaponInfo*
         damage = handleBulletPenetration(surfaceData, trace, direction, start, weaponData->penetration, damage);
         hitsLeft--;
     }
+    VMProtectEnd();
     return false;
 }
 

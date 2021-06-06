@@ -26,7 +26,7 @@ static void __CDECL spottedHook(recvProxyData& data, void* arg2, void* arg3) noe
     if (config->misc.radarHack)
         data.value._int = 1;
 
-    constexpr auto hash{ fnv::hash("CBaseEntity->m_bSpotted") };
+    constexpr auto hash{ FNV("CBaseEntity->m_bSpotted") };
     proxies[hash].first(data, arg2, arg3);
     VMProtectEnd();
 }
@@ -45,7 +45,7 @@ static void __CDECL viewModelSequence(recvProxyData& data, void* outStruct, void
             InventoryChanger::fixKnifeAnimation(weapon, data.value._int);
         }
     }
-    constexpr auto hash{ fnv::hash("CBaseViewModel->m_nSequence") };
+    constexpr auto hash{ FNV("CBaseViewModel->m_nSequence") };
     proxies[hash].first(data, outStruct, arg3);
     VMProtectEnd();
 }
@@ -65,14 +65,11 @@ Netvars::Netvars() noexcept
 
 void Netvars::restore() noexcept
 {
-    VMProtectBeginMutation("Netvars::restore");
-
     for (const auto& [hash, proxyPair] : proxies)
         *proxyPair.second = proxyPair.first;
 
     proxies.clear();
     offsets.clear();
-    VMProtectEnd();
 }
 
 void Netvars::walkTable(const char* networkName, RecvTable* recvTable, const std::size_t offset) noexcept
@@ -84,7 +81,7 @@ void Netvars::walkTable(const char* networkName, RecvTable* recvTable, const std
         if (std::isdigit(prop.name[0]))
             continue;
 
-        if (fnv::hashRuntime(prop.name) == fnv::hash("baseclass"))
+        if (fnv::hash_runtime(prop.name) == FNV("baseclass"))
             continue;
 
         if (prop.type == 6
@@ -92,13 +89,13 @@ void Netvars::walkTable(const char* networkName, RecvTable* recvTable, const std
             && prop.dataTable->netTableName[0] == 'D')
             walkTable(networkName, prop.dataTable, prop.offset + offset);
 
-        const auto hash{ fnv::hashRuntime((networkName + std::string{ "->" } + prop.name).c_str()) };
+        const auto hash{ fnv::hash_runtime((networkName + std::string{ "->" } + prop.name).c_str()) };
 
         constexpr auto getHook{ [](std::uint32_t hash) noexcept -> recvProxy {
              switch (hash) {
-             case fnv::hash("CBaseEntity->m_bSpotted"):
+             case FNV("CBaseEntity->m_bSpotted"):
                  return spottedHook;
-             case fnv::hash("CBaseViewModel->m_nSequence"):
+             case FNV("CBaseViewModel->m_nSequence"):
                  return viewModelSequence;
              default:
                  return nullptr;

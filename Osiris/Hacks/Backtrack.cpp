@@ -12,7 +12,7 @@
 #include "../SDK/LocalPlayer.h"
 #include "../SDK/NetworkChannel.h"
 #include "../SDK/UserCmd.h"
-
+#include "../Security/VMProtectSDK.h"
 #if OSIRIS_BACKTRACK()
 
 struct BacktrackConfig {
@@ -43,6 +43,8 @@ static auto timeToTicks(float time) noexcept
 
 void Backtrack::update(FrameStage stage) noexcept
 {
+    VMProtectBeginMutation("Backtrack::update");
+
     if (stage == FrameStage::RENDER_START) {
         if (!backtrackConfig.enabled || !localPlayer || !localPlayer->isAlive()) {
             for (auto& record : records)
@@ -75,6 +77,7 @@ void Backtrack::update(FrameStage stage) noexcept
                 records[i].erase(invalid, std::cend(records[i]));
         }
     }
+    VMProtectEnd();
 }
 
 static float getLerp() noexcept
@@ -85,7 +88,7 @@ static float getLerp() noexcept
 
 void Backtrack::run(UserCmd* cmd) noexcept
 {
-    if (!backtrackConfig.enabled)
+     if (!backtrackConfig.enabled)
         return;
 
     if (!(cmd->buttons & UserCmd::IN_ATTACK))

@@ -40,26 +40,26 @@ void EventListener::remove() noexcept
 
 void EventListener::fireGameEvent(GameEvent* event)
 {
-    switch (fnv::hashRuntime(event->getName())) {
-    case fnv::hash("round_start"):
+    switch (fnv::hash_runtime(event->getName())) {
+    case FNV("round_start"):
         GameData::clearProjectileList();
         Misc::preserveKillfeed(true);
         [[fallthrough]];
-    case fnv::hash("round_freeze_end"):
+    case FNV("round_freeze_end"):
         Misc::purchaseList(event);
         break;
-    case fnv::hash("player_death"):
+    case FNV("player_death"):
         InventoryChanger::updateStatTrak(*event);
         InventoryChanger::overrideHudIcon(*event);
         Misc::killMessage(*event);
         Misc::killSound(*event);
         break;
-    case fnv::hash("player_hurt"):
+    case FNV("player_hurt"):
         Misc::playHitSound(*event);
         Visuals::hitEffect(event);
         Visuals::hitMarker(event);
         break;
-    case fnv::hash("vote_cast"):
+    case FNV("vote_cast"):
         Misc::voteRevealer(*event);
         break;
     }

@@ -134,13 +134,7 @@
     <ClCompile Include="MinHook\trampoline.c">
       <Filter>MinHook</Filter>
     </ClCompile>
-    <ClCompile Include="Hooks\VmtSwap.cpp">
-      <Filter>Hooks</Filter>
-    </ClCompile>
     <ClCompile Include="Hooks\MinHook.cpp">
-      <Filter>Hooks</Filter>
-    </ClCompile>
-    <ClCompile Include="Hooks\VmtHook.cpp">
       <Filter>Hooks</Filter>
     </ClCompile>
     <ClCompile Include="SDK\Utils.cpp">
@@ -394,9 +388,6 @@
     <ClInclude Include="SDK\WeaponData.h">
       <Filter>SDK</Filter>
     </ClInclude>
-    <ClInclude Include="fnv.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="SDK\AnimState.h">
       <Filter>SDK</Filter>
     </ClInclude>
@@ -478,13 +469,7 @@
     <ClInclude Include="MinHook\buffer.h">
       <Filter>MinHook</Filter>
     </ClInclude>
-    <ClInclude Include="Hooks\VmtSwap.h">
-      <Filter>Hooks</Filter>
-    </ClInclude>
     <ClInclude Include="Hooks\MinHook.h">
-      <Filter>Hooks</Filter>
-    </ClInclude>
-    <ClInclude Include="Hooks\VmtHook.h">
       <Filter>Hooks</Filter>
     </ClInclude>
     <ClInclude Include="SDK\Sound.h">
@@ -562,10 +547,40 @@
     <ClInclude Include="Hacks\InventoryChanger.h">
       <Filter>Hacks</Filter>
     </ClInclude>
+    <ClInclude Include="resource.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Security\eraser.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Security\fnv.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Security\hash.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Security\importer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Security\instr.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Security\lazy.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Security\VMProtectSDK.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Security\xorstr.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="Resources\Shaders\default_vs.hlsl">
       <Filter>Resources\Shaders</Filter>
     </FxCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="Osiris.rc" />
   </ItemGroup>
 </Project>

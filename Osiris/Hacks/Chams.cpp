@@ -27,6 +27,8 @@
 #include "../SDK/StudioRender.h"
 #include "../SDK/KeyValues.h"
 #include "../SDK/Utils.h"
+#include "../Security/VMProtectSDK.h"
+
 
 static Material* normal;
 static Material* flat;
@@ -64,6 +66,8 @@ static constexpr auto dispatchMaterial(int id) noexcept
 
 static void initializeMaterials() noexcept
 {
+    VMProtectBeginMutation("Chams::initializeMaterials");
+
     normal = interfaces->materialSystem->createMaterial("normal", KeyValues::fromString("VertexLitGeneric", nullptr));
     flat = interfaces->materialSystem->createMaterial("flat", KeyValues::fromString("UnlitGeneric", nullptr));
     chrome = interfaces->materialSystem->createMaterial("chrome", KeyValues::fromString("VertexLitGeneric", "$envmap env_cubemap"));
@@ -119,6 +123,8 @@ static void initializeMaterials() noexcept
         kv->setString("$phongtint", "[.8 .9 1]");
         plastic = interfaces->materialSystem->createMaterial("plastic", kv);
     }
+    VMProtectEnd();
+
 }
 
 void Chams::updateInput() noexcept
@@ -128,6 +134,8 @@ void Chams::updateInput() noexcept
 
 bool Chams::render(void* ctx, void* state, const ModelRenderInfo& info, matrix3x4* customBoneToWorld) noexcept
 {
+    VMProtectBeginMutation("Chams::render");
+
     if (config->chamsToggleKey != KeyBind::NONE) {
         if (!config->chamsToggleKey.isToggled() && !config->chamsHoldKey.isDown())
             return false;
@@ -163,13 +171,17 @@ bool Chams::render(void* ctx, void* state, const ModelRenderInfo& info, matrix3x
             renderPlayer(entity);
     }
 
+    VMProtectEnd();
     return appliedChams;
 }
 
 void Chams::renderPlayer(Entity* player) noexcept
 {
+
     if (!localPlayer)
         return;
+    
+    VMProtectBeginMutation("Chams::renderPlayer");
 
     const auto health = player->health();
 
@@ -192,6 +204,7 @@ void Chams::renderPlayer(Entity* player) noexcept
     } else {
         applyChams(config->chams["Allies"].materials, health);
     }
+    VMProtectEnd();
 }
 
 void Chams::renderWeapons() noexcept
@@ -220,6 +233,8 @@ void Chams::renderSleeves() noexcept
 
 void Chams::applyChams(const std::array<Config::Chams::Material, 7>& chams, int health, const matrix3x4* customMatrix) noexcept
 {
+    VMProtectBeginMutation("Chams::applyChams");
+
     for (const auto& cham : chams) {
         if (!cham.enabled || !cham.ignorez)
             continue;
@@ -298,4 +313,7 @@ void Chams::applyChams(const std::array<Config::Chams::Material, 7>& chams, int 
         hooks->modelRender.callOriginal<void, 21>(ctx, state, info, customMatrix ? customMatrix : customBoneToWorld);
         appliedChams = true;
     }
+    
+    VMProtectEnd();
+
 }
