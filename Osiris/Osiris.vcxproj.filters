@@ -559,13 +559,7 @@
     <ClInclude Include="Security\hash.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Security\importer.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="Security\instr.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Security\lazy.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Security\VMProtectSDK.h">

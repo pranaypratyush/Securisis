@@ -11,7 +11,7 @@
 #include "../SDK/LocalPlayer.h"
 
 #include "Sound.h"
-
+#include "../Security/VMProtectSDK.h"
 #if OSIRIS_SOUND()
 
 static struct SoundConfig {
@@ -29,6 +29,7 @@ static struct SoundConfig {
 
 void Sound::modulateSound(std::string_view name, int entityIndex, float& volume) noexcept
 {
+    VMProtectBeginMutation("Sound::modulateSound");
     auto modulateVolume = [&](int SoundConfig::Player::* proj) {
         if (const auto entity = interfaces->entityList->getEntity(entityIndex); localPlayer && entity && entity->isPlayer()) {
             if (entityIndex == localPlayer->index())
@@ -52,6 +53,7 @@ void Sound::modulateSound(std::string_view name, int entityIndex, float& volume)
         modulateVolume(&SoundConfig::Player::footstepVolume);
     else if (name.find("Chicken"sv) != std::string_view::npos)
        volume *= soundConfig.chickenVolume / 100.0f;
+    VMProtectEnd();
 }
 
 void Sound::tabItem() noexcept

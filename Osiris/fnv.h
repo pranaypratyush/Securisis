@@ -5,7 +5,7 @@
 #include <cstdint>
 #include <stdexcept>
 #include <assert.h>
-#include "Security/importer.h"
+#include "Security/lazy_importer.hpp"
 
 namespace detail
 {

@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="Debug|Win32">
@@ -184,9 +184,7 @@
     <ClInclude Include="Security\eraser.hpp" />
     <ClInclude Include="Security\fnv.h" />
     <ClInclude Include="Security\hash.h" />
-    <ClInclude Include="Security\importer.h" />
     <ClInclude Include="Security\instr.h" />
-    <ClInclude Include="Security\lazy.hpp" />
     <ClInclude Include="Security\VMProtectSDK.h" />
     <ClInclude Include="Security\xorstr.hpp" />
     <ClInclude Include="stb_image.h" />

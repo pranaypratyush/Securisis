@@ -7,11 +7,12 @@
 #include "../SDK/WeaponData.h"
 #include "../SDK/WeaponId.h"
 #include "Triggerbot.h"
-
+#include "../Security/VMProtectSDK.h"
 static bool keyPressed;
 
 void Triggerbot::run(UserCmd* cmd) noexcept
 {
+    VMProtectBeginMutation("Triggerbot::run");
     if (!localPlayer || !localPlayer->isAlive() || localPlayer->nextAttack() > memory->globalVars->serverTime() || localPlayer->isDefusing() || localPlayer->waitForNoAttack())
         return;
 
@@ -97,6 +98,7 @@ void Triggerbot::run(UserCmd* cmd) noexcept
         lastTime = 0.0f;
         lastContact = now;
     }
+    VMProtectEnd();
 }
 
 void Triggerbot::updateInput() noexcept

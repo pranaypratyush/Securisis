@@ -27,7 +27,7 @@
 #include "../SDK/NetworkStringTable.h"
 #include "../SDK/Surface.h"
 #include "../SDK/ViewRenderBeams.h"
-
+#include "../Security/xorstr.hpp"
 void Visuals::playerModel(FrameStage stage) noexcept
 {
     if (stage != FrameStage::RENDER_START && stage != FrameStage::RENDER_END)
@@ -41,7 +41,7 @@ void Visuals::playerModel(FrameStage stage) noexcept
     }
 
     constexpr auto getModel = [](Team team) constexpr noexcept -> const char* {
-        constexpr std::array models{
+        constexpr std::array models = {
         "models/player/custom_player/legacy/ctm_fbi_variantb.mdl",
         "models/player/custom_player/legacy/ctm_fbi_variantf.mdl",
         "models/player/custom_player/legacy/ctm_fbi_variantg.mdl",
@@ -64,7 +64,7 @@ void Visuals::playerModel(FrameStage stage) noexcept
         "models/player/custom_player/legacy/tm_phoenix_variantf.mdl",
         "models/player/custom_player/legacy/tm_phoenix_variantg.mdl",
         "models/player/custom_player/legacy/tm_phoenix_varianth.mdl",
-        
+
         "models/player/custom_player/legacy/tm_pirate.mdl",
         "models/player/custom_player/legacy/tm_pirate_varianta.mdl",
         "models/player/custom_player/legacy/tm_pirate_variantb.mdl",
@@ -165,7 +165,7 @@ void Visuals::modifySmoke(FrameStage stage) noexcept
     if (stage != FrameStage::RENDER_START && stage != FrameStage::RENDER_END)
         return;
 
-    constexpr std::array smokeMaterials{
+    constexpr std::array smokeMaterials = {
         "particle/vistasmokev1/vistasmokev1_emods",
         "particle/vistasmokev1/vistasmokev1_emods_impactdust",
         "particle/vistasmokev1/vistasmokev1_fire",
@@ -234,10 +234,10 @@ void Visuals::removeGrass(FrameStage stage) noexcept
 
     constexpr auto getGrassMaterialName = []() noexcept -> const char* {
         switch (fnv::hash_runtime(interfaces->engine->getLevelName())) {
-        case FNV("dz_blacksite"): return "detail/detailsprites_survival";
-        case FNV("dz_sirocco"): return "detail/dust_massive_detail_sprites";
-        case FNV("coop_autumn"): return "detail/autumn_detail_sprites";
-        case FNV("dz_frostbite"): return "ski/detail/detailsprites_overgrown_ski";
+        case FNV("dz_blacksite"): return xorstr_("detail/detailsprites_survival");
+        case FNV("dz_sirocco"): return xorstr_("detail/dust_massive_detail_sprites");
+        case FNV("coop_autumn"): return xorstr_("detail/autumn_detail_sprites");
+        case FNV("dz_frostbite"): return xorstr_("ski/detail/detailsprites_overgrown_ski");
         // dz_junglety has been removed in 7/23/2020 patch
         // case FNV("dz_junglety"): return "detail/tropical_grass";
         default: return nullptr;
@@ -305,7 +305,7 @@ void Visuals::applyScreenEffects() noexcept
         return;
 
     const auto material = interfaces->materialSystem->findMaterial([] {
-        constexpr std::array effects{
+         constexpr std::array effects = {
             "effects/dronecam",
             "effects/underwater_overlay",
             "effects/healthboost",

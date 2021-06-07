@@ -49,6 +49,7 @@
 
 #include "../Helpers.h"
 
+#include "../Security/VMProtectSDK.h"
 constexpr auto isKnife(WeaponId id) noexcept
 {
     return (id >= WeaponId::Bayonet && id <= WeaponId::SkeletonKnife) || id == WeaponId::KnifeT || id == WeaponId::Knife;
@@ -696,6 +697,7 @@ static void applyMusicKit(CSPlayerInventory& localInventory) noexcept
 
 void InventoryChanger::run(FrameStage stage) noexcept
 {
+    VMProtectBeginMutation("InventoryChanger::run");
     static int localPlayerHandle = -1;
 
     if (localPlayer)
@@ -875,6 +877,8 @@ void InventoryChanger::run(FrameStage stage) noexcept
 
     if (addedNameTagToItemID)
         initItemCustomizationNotification("nametag_add", std::to_string(addedNameTagToItemID).c_str());
+    
+    VMProtectEnd();
 }
 
 void InventoryChanger::scheduleHudUpdate() noexcept

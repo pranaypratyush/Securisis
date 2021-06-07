@@ -34,6 +34,7 @@
 #include "SDK/WeaponId.h"
 #include "SDK/WeaponData.h"
 #include "Security/VMProtectSDK.h"
+#include "Security/xorstr.hpp"
 static Matrix4x4 viewMatrix;
 static LocalPlayerData localPlayerData;
 static std::vector<PlayerData> playerData;
@@ -340,17 +341,17 @@ EntityData::EntityData(Entity* entity) noexcept : BaseData{ entity }
 
     name = [](Entity* entity) {
         switch (entity->getClientClass()->classId) {
-        case ClassId::EconEntity: return "Defuse Kit";
-        case ClassId::Chicken: return "Chicken";
-        case ClassId::PlantedC4: return "Planted C4";
-        case ClassId::Hostage: return "Hostage";
-        case ClassId::Dronegun: return "Sentry";
-        case ClassId::Cash: return "Cash";
-        case ClassId::AmmoBox: return "Ammo Box";
-        case ClassId::RadarJammer: return "Radar Jammer";
-        case ClassId::SnowballPile: return "Snowball Pile";
-        case ClassId::DynamicProp: return "Collectable Coin";
-        default: assert(false); return "unknown";
+        case ClassId::EconEntity: return xorstr_("Defuse Kit");
+        case ClassId::Chicken: return xorstr_("Chicken");
+        case ClassId::PlantedC4: return xorstr_("Planted C4");
+        case ClassId::Hostage: return xorstr_("Hostage");
+        case ClassId::Dronegun: return xorstr_("Sentry");
+        case ClassId::Cash: return xorstr_("Cash");
+        case ClassId::AmmoBox: return xorstr_("Ammo Box");
+        case ClassId::RadarJammer: return xorstr_("Radar Jammer");
+        case ClassId::SnowballPile: return xorstr_("Snowball Pile");
+        case ClassId::DynamicProp: return xorstr_("Collectable Coin");
+        default: assert(false); return xorstr_("unknown");
         }
     }(entity);
     VMProtectEnd();
@@ -362,17 +363,17 @@ ProjectileData::ProjectileData(Entity* projectile) noexcept : BaseData { project
         switch (projectile->getClientClass()->classId) {
         case ClassId::BaseCSGrenadeProjectile:
             if (const auto model = projectile->getModel(); model && strstr(model->name, "flashbang"))
-                return "Flashbang";
+                return xorstr_("Flashbang");
             else
-                return "HE Grenade";
-        case ClassId::BreachChargeProjectile: return "Breach Charge";
-        case ClassId::BumpMineProjectile: return "Bump Mine";
-        case ClassId::DecoyProjectile: return "Decoy Grenade";
-        case ClassId::MolotovProjectile: return "Molotov";
-        case ClassId::SensorGrenadeProjectile: return "TA Grenade";
-        case ClassId::SmokeGrenadeProjectile: return "Smoke Grenade";
-        case ClassId::SnowballProjectile: return "Snowball";
-        default: assert(false); return "unknown";
+                return xorstr_("HE Grenade");
+        case ClassId::BreachChargeProjectile: return xorstr_("Breach Charge");
+        case ClassId::BumpMineProjectile: return xorstr_("Bump Mine");
+        case ClassId::DecoyProjectile: return xorstr_("Decoy Grenade");
+        case ClassId::MolotovProjectile: return xorstr_("Molotov");
+        case ClassId::SensorGrenadeProjectile: return xorstr_("TA Grenade");
+        case ClassId::SmokeGrenadeProjectile: return xorstr_("Smoke Grenade");
+        case ClassId::SnowballProjectile: return xorstr_("Snowball");
+        default: assert(false); return xorstr_("unknown");
         }
     }(projectile);
 
@@ -564,14 +565,14 @@ WeaponData::WeaponData(Entity* entity) noexcept : BaseData{ entity }
     if (const auto weaponInfo = entity->getWeaponData()) {
         group = [](WeaponType type, WeaponId weaponId) {
             switch (type) {
-            case WeaponType::Pistol: return "Pistols";
-            case WeaponType::SubMachinegun: return "SMGs";
-            case WeaponType::Rifle: return "Rifles";
-            case WeaponType::SniperRifle: return "Sniper Rifles";
-            case WeaponType::Shotgun: return "Shotguns";
-            case WeaponType::Machinegun: return "Machineguns";
-            case WeaponType::Grenade: return "Grenades";
-            case WeaponType::Melee: return "Melee";
+            case WeaponType::Pistol: return xorstr_("Pistols");
+            case WeaponType::SubMachinegun: return xorstr_("SMGs");
+            case WeaponType::Rifle: return xorstr_("Rifles");
+            case WeaponType::SniperRifle: return xorstr_("Sniper Rifles");
+            case WeaponType::Shotgun: return xorstr_("Shotguns");
+            case WeaponType::Machinegun: return xorstr_("Machineguns");
+            case WeaponType::Grenade: return xorstr_("Grenades");
+            case WeaponType::Melee: return xorstr_("Melee");
             default:
                 switch (weaponId) {
                 case WeaponId::C4:
@@ -579,76 +580,76 @@ WeaponData::WeaponData(Entity* entity) noexcept : BaseData{ entity }
                 case WeaponId::BumpMine:
                 case WeaponId::ZoneRepulsor:
                 case WeaponId::Shield:
-                    return "Other";
-                default: return "All";
+                    return xorstr_("Other");
+                default: return xorstr_("All");
                 }
             }
         }(weaponInfo->type, entity->itemDefinitionIndex2());
         name = [](WeaponId weaponId) {
             switch (weaponId) {
-            default: return "All";
+            default: return xorstr_("All");
 
-            case WeaponId::Glock: return "Glock-18";
-            case WeaponId::Hkp2000: return "P2000";
-            case WeaponId::Usp_s: return "USP-S";
-            case WeaponId::Elite: return "Dual Berettas";
-            case WeaponId::P250: return "P250";
-            case WeaponId::Tec9: return "Tec-9";
-            case WeaponId::Fiveseven: return "Five-SeveN";
-            case WeaponId::Cz75a: return "CZ75-Auto";
-            case WeaponId::Deagle: return "Desert Eagle";
-            case WeaponId::Revolver: return "R8 Revolver";
+            case WeaponId::Glock: return xorstr_("Glock-18");
+            case WeaponId::Hkp2000: return xorstr_("P2000");
+            case WeaponId::Usp_s: return xorstr_("USP-S");
+            case WeaponId::Elite: return xorstr_("Dual Berettas");
+            case WeaponId::P250: return xorstr_("P250");
+            case WeaponId::Tec9: return xorstr_("Tec-9");
+            case WeaponId::Fiveseven: return xorstr_("Five-SeveN");
+            case WeaponId::Cz75a: return xorstr_("CZ75-Auto");
+            case WeaponId::Deagle: return xorstr_("Desert Eagle");
+            case WeaponId::Revolver: return xorstr_("R8 Revolver");
 
-            case WeaponId::Mac10: return "MAC-10";
-            case WeaponId::Mp9: return "MP9";
-            case WeaponId::Mp7: return "MP7";
-            case WeaponId::Mp5sd: return "MP5-SD";
-            case WeaponId::Ump45: return "UMP-45";
-            case WeaponId::P90: return "P90";
-            case WeaponId::Bizon: return "PP-Bizon";
+            case WeaponId::Mac10: return xorstr_("MAC-10");
+            case WeaponId::Mp9: return xorstr_("MP9");
+            case WeaponId::Mp7: return xorstr_("MP7");
+            case WeaponId::Mp5sd: return xorstr_("MP5-SD");
+            case WeaponId::Ump45: return xorstr_("UMP-45");
+            case WeaponId::P90: return xorstr_("P90");
+            case WeaponId::Bizon: return xorstr_("PP-Bizon");
 
-            case WeaponId::GalilAr: return "Galil AR";
-            case WeaponId::Famas: return "FAMAS";
-            case WeaponId::Ak47: return "AK-47";
-            case WeaponId::M4A1: return "M4A4";
-            case WeaponId::M4a1_s: return "M4A1-S";
-            case WeaponId::Sg553: return "SG 553";
-            case WeaponId::Aug: return "AUG";
+            case WeaponId::GalilAr: return xorstr_("Galil AR");
+            case WeaponId::Famas: return xorstr_("FAMAS");
+            case WeaponId::Ak47: return xorstr_("AK-47");
+            case WeaponId::M4A1: return xorstr_("M4A4");
+            case WeaponId::M4a1_s: return xorstr_("M4A1-S");
+            case WeaponId::Sg553: return xorstr_("SG 553");
+            case WeaponId::Aug: return xorstr_("AUG");
 
-            case WeaponId::Ssg08: return "SSG 08";
-            case WeaponId::Awp: return "AWP";
-            case WeaponId::G3SG1: return "G3SG1";
-            case WeaponId::Scar20: return "SCAR-20";
+            case WeaponId::Ssg08: return xorstr_("SSG 08");
+            case WeaponId::Awp: return xorstr_("AWP");
+            case WeaponId::G3SG1: return xorstr_("G3SG1");
+            case WeaponId::Scar20: return xorstr_("SCAR-20");
 
-            case WeaponId::Nova: return "Nova";
-            case WeaponId::Xm1014: return "XM1014";
-            case WeaponId::Sawedoff: return "Sawed-Off";
-            case WeaponId::Mag7: return "MAG-7";
+            case WeaponId::Nova: return xorstr_("Nova");
+            case WeaponId::Xm1014: return xorstr_("XM1014");
+            case WeaponId::Sawedoff: return xorstr_("Sawed-Off");
+            case WeaponId::Mag7: return xorstr_("MAG-7");
 
-            case WeaponId::M249: return "M249";
-            case WeaponId::Negev: return "Negev";
+            case WeaponId::M249: return xorstr_("M249");
+            case WeaponId::Negev: return xorstr_("Negev");
 
-            case WeaponId::Flashbang: return "Flashbang";
-            case WeaponId::HeGrenade: return "HE Grenade";
-            case WeaponId::SmokeGrenade: return "Smoke Grenade";
-            case WeaponId::Molotov: return "Molotov";
-            case WeaponId::Decoy: return "Decoy Grenade";
-            case WeaponId::IncGrenade: return "Incendiary";
-            case WeaponId::TaGrenade: return "TA Grenade";
-            case WeaponId::Firebomb: return "Fire Bomb";
-            case WeaponId::Diversion: return "Diversion";
-            case WeaponId::FragGrenade: return "Frag Grenade";
-            case WeaponId::Snowball: return "Snowball";
+            case WeaponId::Flashbang: return xorstr_("Flashbang");
+            case WeaponId::HeGrenade: return xorstr_("HE Grenade");
+            case WeaponId::SmokeGrenade: return xorstr_("Smoke Grenade");
+            case WeaponId::Molotov: return xorstr_("Molotov");
+            case WeaponId::Decoy: return xorstr_("Decoy Grenade");
+            case WeaponId::IncGrenade: return xorstr_("Incendiary");
+            case WeaponId::TaGrenade: return xorstr_("TA Grenade");
+            case WeaponId::Firebomb: return xorstr_("Fire Bomb");
+            case WeaponId::Diversion: return xorstr_("Diversion");
+            case WeaponId::FragGrenade: return xorstr_("Frag Grenade");
+            case WeaponId::Snowball: return xorstr_("Snowball");
 
-            case WeaponId::Axe: return "Axe";
-            case WeaponId::Hammer: return "Hammer";
-            case WeaponId::Spanner: return "Wrench";
+            case WeaponId::Axe: return xorstr_("Axe");
+            case WeaponId::Hammer: return xorstr_("Hammer");
+            case WeaponId::Spanner: return xorstr_("Wrench");
 
-            case WeaponId::C4: return "C4";
-            case WeaponId::Healthshot: return "Healthshot";
-            case WeaponId::BumpMine: return "Bump Mine";
-            case WeaponId::ZoneRepulsor: return "Zone Repulsor";
-            case WeaponId::Shield: return "Shield";
+            case WeaponId::C4: return xorstr_("C4");
+            case WeaponId::Healthshot: return xorstr_("Healthshot");
+            case WeaponId::BumpMine: return xorstr_("Bump Mine");
+            case WeaponId::ZoneRepulsor: return xorstr_("Zone Repulsor");
+            case WeaponId::Shield: return xorstr_("Shield");
             }
         }(entity->itemDefinitionIndex2());
 
@@ -664,12 +665,12 @@ LootCrateData::LootCrateData(Entity* entity) noexcept : BaseData{ entity }
 
     name = [](const char* modelName) -> const char* {
         switch (fnv::hash_runtime(modelName)) {
-        case FNV("models/props_survival/cases/case_pistol.mdl"): return "Pistol Case";
-        case FNV("models/props_survival/cases/case_light_weapon.mdl"): return "Light Case";
-        case FNV("models/props_survival/cases/case_heavy_weapon.mdl"): return "Heavy Case";
-        case FNV("models/props_survival/cases/case_explosive.mdl"): return "Explosive Case";
-        case FNV("models/props_survival/cases/case_tools.mdl"): return "Tools Case";
-        case FNV("models/props_survival/cash/dufflebag.mdl"): return "Cash Dufflebag";
+        case FNV("models/props_survival/cases/case_pistol.mdl"): return xorstr_("Pistol Case");
+        case FNV("models/props_survival/cases/case_light_weapon.mdl"): return xorstr_("Light Case");
+        case FNV("models/props_survival/cases/case_heavy_weapon.mdl"): return xorstr_("Heavy Case");
+        case FNV("models/props_survival/cases/case_explosive.mdl"): return xorstr_("Explosive Case");
+        case FNV("models/props_survival/cases/case_tools.mdl"): return xorstr_("Tools Case");
+        case FNV("models/props_survival/cash/dufflebag.mdl"): return xorstr_("Cash Dufflebag");
         default: return nullptr;
         }
     }(model->name);

@@ -8,6 +8,7 @@
 #include "../SDK/UserCmd.h"
 #include "../SDK/Vector.h"
 #include "../Security/VMProtectSDK.h"
+#include "../Security/xorstr.hpp"
 #if OSIRIS_ANTIAIM()
 
 struct AntiAimConfig {
@@ -42,16 +43,16 @@ static bool antiAimOpen = false;
 
 void AntiAim::menuBarItem() noexcept
 {
-    if (ImGui::MenuItem("Anti aim")) {
+    if (ImGui::MenuItem(xorstr_("Anti aim"))) {
         antiAimOpen = true;
-        ImGui::SetWindowFocus("Anti aim");
-        ImGui::SetWindowPos("Anti aim", { 100.0f, 100.0f });
+        ImGui::SetWindowFocus(xorstr_("Anti aim"));
+        ImGui::SetWindowPos(xorstr_("Anti aim"), { 100.0f, 100.0f });
     }
 }
 
 void AntiAim::tabItem() noexcept
 {
-    if (ImGui::BeginTabItem("Anti aim")) {
+    if (ImGui::BeginTabItem(xorstr_("Anti aim"))) {
         drawGUI(true);
         ImGui::EndTabItem();
     }
@@ -63,7 +64,7 @@ void AntiAim::drawGUI(bool contentOnly) noexcept
         if (!antiAimOpen)
             return;
         ImGui::SetNextWindowSize({ 0.0f, 0.0f });
-        ImGui::Begin("Anti aim", &antiAimOpen, ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoScrollWithMouse);
+        ImGui::Begin(xorstr_("Anti aim"), &antiAimOpen, ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoScrollWithMouse);
     }
     ImGui::Checkbox("Enabled", &antiAimConfig.enabled);
     ImGui::Checkbox("##pitch", &antiAimConfig.pitch);

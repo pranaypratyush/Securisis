@@ -1,7 +1,7 @@
 #include "MinHook.h"
 #include "../MinHook/MinHook.h"
 #include "../Helpers.h"
-
+#include "../Security/VMProtectSDK.h"
 void MinHook::init(void* base) noexcept
 {
     VMProtectBeginMutation("MinHook::init");

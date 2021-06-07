@@ -20,7 +20,7 @@
 #include "../SDK/Engine.h"
 #include "../SDK/GlobalVars.h"
 #include "../Memory.h"
-
+#include "../Security/VMProtectSDK.h"
 static bool worldToScreen(const Vector& in, ImVec2& out, bool floor = true) noexcept
 {
     const auto& matrix = GameData::toScreenMatrix();
@@ -520,6 +520,7 @@ static void renderProjectileEsp(const ProjectileData& projectileData, const Proj
 
 void StreamProofESP::render() noexcept
 {
+    VMProtectBeginMutation("StreamProofESP::render");
     if (config->streamProofESP.toggleKey != KeyBind::NONE) {
         if (!config->streamProofESP.toggleKey.isToggled() && !config->streamProofESP.holdKey.isDown())
             return;
@@ -554,6 +555,7 @@ void StreamProofESP::render() noexcept
         if (!renderPlayerEsp(player, playerConfig["All"]))
             renderPlayerEsp(player, playerConfig[player.visible ? "Visible" : "Occluded"]);
     }
+    VMProtectEnd();
 }
 
 void StreamProofESP::updateInput() noexcept
